@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ recipe.name }}</title>
+  <script type="application/ld+json">
+  {{ recipe_json_ld|safe }}
+  </script>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { margin-bottom: 0.2rem; }
+    h2 { margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <article itemscope itemtype="https://schema.org/Recipe">
+    <h1 itemprop="name">{{ recipe.name }}</h1>
+    {% if recipe.image %}
+    <img itemprop="image" src="{{ recipe.image.url }}" alt="{{ recipe.name }}" style="max-width: 100%;">
+    {% endif %}
+    <p itemprop="description">{{ recipe.description }}</p>
+    <p>Yield: <span itemprop="recipeYield">{{ recipe.recipe_yield }}</span></p>
+    <p>
+      Prep: <meta itemprop="prepTime" content="{{ recipe.prep_time }}">{{ recipe.prep_time }} &middot;
+      Cook: <meta itemprop="cookTime" content="{{ recipe.cook_time }}">{{ recipe.cook_time }}
+    </p>
+
+    <h2>Ingredients</h2>
+    <ul>
+      {% for line in ingredient_lines %}
+      <li itemprop="recipeIngredient">{{ line }}</li>
+      {% endfor %}
+    </ul>
+
+    <h2>Directions</h2>
+    <ol>
+      {% for line in instruction_lines %}
+      <li itemprop="recipeInstructions">{{ line }}</li>
+      {% endfor %}
+    </ol>
+  </article>
+</body>
+</html>

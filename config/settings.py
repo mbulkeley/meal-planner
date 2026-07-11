@@ -25,7 +25,10 @@ SECRET_KEY = 'django-insecure-lxtiz_7#$t276*r_96#wbol84gf%14r3j*$eru+wnaz)3j!!&#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# '192.168.1.50' is this Mac's current LAN IP — the Host header the iPad
+# sends when it hits the dev server over wifi. Update if the IP changes
+# (e.g. after a router reboot/DHCP lease renewal).
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.50']
 
 
 # Application definition
@@ -37,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'recipes',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +120,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Where uploaded recipe images live and the URL prefix they're served from.
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
