@@ -10,6 +10,7 @@
 </head>
 <body>
   <h1>Recipes</h1>
+  <p><a href="{% url 'recipes:new' %}">+ Add recipe</a></p>
   <ul>
     {% for recipe in recipes %}
     <li><a href="{% url 'recipes:detail' recipe.pk %}">{{ recipe.name }}</a></li>

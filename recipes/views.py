@@ -1,8 +1,10 @@
 import json
 
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import RecipePasteForm
 from .models import Recipe
+from .parsing import parse_recipe_text
 
 
 def _lines(text):
@@ -12,6 +14,26 @@ def _lines(text):
 def recipe_list(request):
     recipes = Recipe.objects.all()
     return render(request, "recipes/recipe_list.html", {"recipes": recipes})
+
+
+def recipe_new(request):
+    error = None
+    if request.method == "POST":
+        form = RecipePasteForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                fields = parse_recipe_text(form.cleaned_data["text"])
+            except ValueError as e:
+                error = str(e)
+            else:
+                recipe = Recipe(**fields)
+                if form.cleaned_data["image"]:
+                    recipe.image = form.cleaned_data["image"]
+                recipe.save()
+                return redirect("recipes:detail", pk=recipe.pk)
+    else:
+        form = RecipePasteForm()
+    return render(request, "recipes/recipe_new.html", {"form": form, "error": error})
 
 
 def recipe_detail(request, pk):

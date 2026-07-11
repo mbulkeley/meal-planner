@@ -25,10 +25,10 @@ SECRET_KEY = 'django-insecure-lxtiz_7#$t276*r_96#wbol84gf%14r3j*$eru+wnaz)3j!!&#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# '192.168.1.50' is this Mac's current LAN IP — the Host header the iPad
-# sends when it hits the dev server over wifi. Update if the IP changes
-# (e.g. after a router reboot/DHCP lease renewal).
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.50']
+# '192.168.1.50' is this Mac's current LAN IP, used during development.
+# 'recipe-pi.local' is the Pi's mDNS/Bonjour hostname once deployed there —
+# Update the IP if it changes (e.g. after a router reboot/DHCP lease renewal).
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.50', 'recipe-pi.local']
 
 
 # Application definition
