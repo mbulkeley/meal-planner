@@ -32,11 +32,15 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# This app is only ever reached over a home LAN — 'recipe-pi.local' is the
-# Raspberry Pi it runs on (via mDNS/Bonjour), plus localhost/the dev
-# machine's LAN IP for local testing. Update the IP if it changes (e.g.
-# after a router reboot/DHCP lease renewal).
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.50', 'recipe-pi.local']
+# This app is only ever reached over a home LAN. The real deployment host(s)
+# — e.g. the machine's mDNS/Bonjour name, or a LAN IP for local testing — are
+# set via DJANGO_ALLOWED_HOSTS (comma-separated) rather than committed here,
+# since a public repo shouldn't bake in details of anyone's home network.
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
 
 # Application definition
