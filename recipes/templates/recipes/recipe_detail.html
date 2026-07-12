@@ -48,6 +48,10 @@
         <span class="eyebrow">Total</span>
         <span class="mono"><meta itemprop="totalTime" content="{{ recipe.total_time }}">{{ total_time_display }}</span>
       </div>
+      <div class="stat">
+        <span class="eyebrow">Cooked</span>
+        <span class="mono">{% if cook_count %}{{ cook_count }}&times;{% if average_rating %} &middot; {{ average_rating }}★{% endif %}{% else %}—{% endif %}</span>
+      </div>
     </div>
 
     <h2>Ingredients</h2>
@@ -64,6 +68,27 @@
       {% endfor %}
     </ol>
   </article>
+
+  <h2>Cook history</h2>
+  <div class="form-card">
+    <form method="post">
+      {% csrf_token %}
+      {{ log_form.as_p }}
+      <button type="submit">Log this cook</button>
+    </form>
+  </div>
+
+  {% if cook_logs %}
+  <ul class="cook-log-list">
+    {% for log in cook_logs %}
+    <li>
+      <span class="mono">{{ log.cooked_on }}</span>
+      <span class="stars-display">{{ log.rating|stars }}</span>
+      {% if log.notes %}<p>{{ log.notes }}</p>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   <p class="actions">
     <a href="{% url 'recipes:edit' recipe.pk %}">Edit</a>

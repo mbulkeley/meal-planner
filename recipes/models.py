@@ -1,3 +1,6 @@
+from datetime import date
+
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -31,3 +34,24 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CookLog(models.Model):
+    RATING_CHOICES = [(n, "★" * n) for n in range(1, 6)]
+
+    recipe = models.ForeignKey(Recipe, related_name="cook_logs", on_delete=models.CASCADE)
+    cooked_on = models.DateField(default=date.today)
+    rating = models.PositiveSmallIntegerField(
+        choices=RATING_CHOICES,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        blank=True,
+        null=True,
+    )
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-cooked_on", "-created_at"]
+
+    def __str__(self):
+        return f"{self.recipe.name} on {self.cooked_on}"

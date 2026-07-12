@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Recipe
+from .models import CookLog, Recipe
 
 
 class RecipePasteForm(forms.Form):
@@ -28,4 +28,14 @@ class RecipeForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"rows": 3}),
             "ingredients": forms.Textarea(attrs={"rows": 10}),
             "instructions": forms.Textarea(attrs={"rows": 10}),
+        }
+
+
+class CookLogForm(forms.ModelForm):
+    class Meta:
+        model = CookLog
+        fields = ["cooked_on", "rating", "notes"]
+        widgets = {
+            "cooked_on": forms.DateInput(attrs={"type": "date"}),
+            "notes": forms.Textarea(attrs={"rows": 2}),
         }

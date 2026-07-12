@@ -16,3 +16,10 @@ def tab_class(category):
         return _TAB_CLASSES[0]
     index = zlib.crc32(category.strip().lower().encode()) % len(_TAB_CLASSES)
     return _TAB_CLASSES[index]
+
+
+@register.filter
+def stars(rating):
+    if not rating:
+        return "—"
+    return "★" * rating + "☆" * (5 - rating)

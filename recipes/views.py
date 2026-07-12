@@ -8,7 +8,7 @@ from urllib.parse import urljoin, urlparse
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import RecipeForm, RecipePasteForm
+from .forms import CookLogForm, RecipeForm, RecipePasteForm
 from .models import Recipe
 from .parsing import parse_recipe_text
 
@@ -108,6 +108,20 @@ def recipe_new(request):
 def recipe_detail(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
 
+    if request.method == "POST":
+        log_form = CookLogForm(request.POST)
+        if log_form.is_valid():
+            log = log_form.save(commit=False)
+            log.recipe = recipe
+            log.save()
+            return redirect("recipes:detail", pk=recipe.pk)
+    else:
+        log_form = CookLogForm()
+
+    cook_logs = recipe.cook_logs.all()
+    ratings = [log.rating for log in cook_logs if log.rating]
+    average_rating = round(sum(ratings) / len(ratings), 1) if ratings else None
+
     ingredient_lines = _lines(recipe.ingredients)
     instruction_lines = _lines(recipe.instructions)
 
@@ -138,6 +152,10 @@ def recipe_detail(request, pk):
         "prep_time_display": _human_duration(recipe.prep_time),
         "cook_time_display": _human_duration(recipe.cook_time),
         "total_time_display": _human_duration(recipe.total_time),
+        "log_form": log_form,
+        "cook_logs": cook_logs,
+        "cook_count": len(cook_logs),
+        "average_rating": average_rating,
     }
     return render(request, "recipes/recipe_detail.html", context)
 
