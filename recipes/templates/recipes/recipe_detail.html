@@ -16,6 +16,7 @@
   </style>
 </head>
 <body>
+  <p><a href="{% url 'recipes:list' %}">&larr; Recipes</a></p>
   <article itemscope itemtype="https://schema.org/Recipe">
     <h1 itemprop="name">{{ recipe.name }}</h1>
     {% if recipe.image %}
