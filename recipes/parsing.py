@@ -10,6 +10,7 @@ _LABELS = {
     "cook time": "cook_time",
     "total time": "total_time",
     "recipe category": "recipe_category",
+    "image": "image_url",
 }
 
 _DURATION_FIELDS = ("prep_time", "cook_time", "total_time")
@@ -52,15 +53,17 @@ def parse_recipe_text(text):
             section = "instructions"
             continue
 
-        if section:
-            section_lines[section].append(stripped)
-            continue
-
+        # Checked even inside a section — some tools put "Image:" after
+        # Instructions:, and it shouldn't get swallowed as an instruction step.
         if ":" in stripped:
             label, _, value = stripped.partition(":")
             field_name = _LABELS.get(label.strip().lower())
             if field_name:
                 fields[field_name] = value.strip()
+                continue
+
+        if section:
+            section_lines[section].append(stripped)
 
     if "name" not in fields:
         raise ValueError('Couldn\'t find a "Name:" line in the pasted text.')

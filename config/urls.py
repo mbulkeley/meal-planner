@@ -17,6 +17,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 
 urlpatterns = [
@@ -25,6 +26,10 @@ urlpatterns = [
 ]
 
 # Only needed in development — a real deployment (e.g. the Pi) serves media
-# files via the web server (nginx/etc.), not Django itself.
+# and static files via the web server (nginx/etc.), not Django itself.
+# Note: unlike `runserver`, gunicorn doesn't auto-serve static/media even
+# with DEBUG=True, so both need this explicit wiring — that's how the Pi
+# (which runs gunicorn) actually gets the favicon and uploaded images.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += staticfiles_urlpatterns()

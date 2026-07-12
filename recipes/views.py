@@ -1,14 +1,59 @@
 import json
+import os
+import re
+import urllib.request
+from urllib.error import HTTPError, URLError
+from urllib.parse import urljoin, urlparse
 
+from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import RecipePasteForm
 from .models import Recipe
 from .parsing import parse_recipe_text
 
+_USER_AGENT = "Mozilla/5.0 (meal-planner recipe importer)"
+
 
 def _lines(text):
     return [line.strip() for line in text.splitlines() if line.strip()]
+
+
+def _fetch_url(url):
+    request = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
+    with urllib.request.urlopen(request, timeout=10) as response:
+        return response.headers.get("Content-Type", ""), response.read()
+
+
+def _fetch_image(url):
+    """Best-effort image fetch for an "Image:" URL pulled from pasted recipe
+    text. Accepts either a direct image link or a recipe/blog page link — for
+    the latter, follows its og:image meta tag. Returns (filename, bytes), or
+    None if nothing usable is found (a missing photo shouldn't block saving
+    the recipe).
+    """
+    try:
+        content_type, data = _fetch_url(url)
+    except (URLError, HTTPError, ValueError):
+        return None
+
+    if not content_type.startswith("image/"):
+        match = re.search(
+            r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']',
+            data.decode("utf-8", errors="ignore"),
+        )
+        if not match:
+            return None
+        url = urljoin(url, match.group(1))
+        try:
+            content_type, data = _fetch_url(url)
+        except (URLError, HTTPError, ValueError):
+            return None
+        if not content_type.startswith("image/"):
+            return None
+
+    filename = os.path.basename(urlparse(url).path) or "image.jpg"
+    return filename, data
 
 
 def recipe_list(request):
@@ -26,9 +71,16 @@ def recipe_new(request):
             except ValueError as e:
                 error = str(e)
             else:
+                image_url = fields.pop("image_url", None)
                 recipe = Recipe(**fields)
-                if form.cleaned_data["image"]:
-                    recipe.image = form.cleaned_data["image"]
+                uploaded_image = form.cleaned_data["image"]
+                if uploaded_image:
+                    recipe.image = uploaded_image
+                elif image_url:
+                    fetched = _fetch_image(image_url)
+                    if fetched:
+                        filename, data = fetched
+                        recipe.image.save(filename, ContentFile(data), save=False)
                 recipe.save()
                 return redirect("recipes:detail", pk=recipe.pk)
     else:
