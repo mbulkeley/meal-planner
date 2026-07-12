@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,14 +21,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lxtiz_7#$t276*r_96#wbol84gf%14r3j*$eru+wnaz)3j!!&#'
+# Real deployments (dev Mac, the Pi) set DJANGO_SECRET_KEY in the environment.
+# This fallback is a fresh, low-stakes placeholder — safe to keep in a public
+# repo — so the project still runs out of the box for anyone who clones it.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-dc+7d9)$%+se$rm$48%wl1rhjzs#8@&b(p(c#j^6t6a%w*^jh",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# '192.168.1.50' is this Mac's current LAN IP, used during development.
-# 'recipe-pi.local' is the Pi's mDNS/Bonjour hostname once deployed there —
-# Update the IP if it changes (e.g. after a router reboot/DHCP lease renewal).
+# This app is only ever reached over a home LAN — 'recipe-pi.local' is the
+# Raspberry Pi it runs on (via mDNS/Bonjour), plus localhost/the dev
+# machine's LAN IP for local testing. Update the IP if it changes (e.g.
+# after a router reboot/DHCP lease renewal).
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.50', 'recipe-pi.local']
 
 
