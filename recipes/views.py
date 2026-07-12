@@ -137,6 +137,7 @@ def recipe_detail(request, pk):
         "instruction_lines": instruction_lines,
         "prep_time_display": _human_duration(recipe.prep_time),
         "cook_time_display": _human_duration(recipe.cook_time),
+        "total_time_display": _human_duration(recipe.total_time),
     }
     return render(request, "recipes/recipe_detail.html", context)
 

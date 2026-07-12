@@ -1,26 +1,20 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="{% static 'recipes/favicon.svg' %}">
-  <title>Add recipe</title>
-  <style>
-    body { font-family: -apple-system, system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
-    textarea { width: 100%; height: 20rem; font-family: inherit; }
-    .error { color: #b00020; }
-  </style>
-</head>
-<body>
-  <h1>Add recipe</h1>
+{% extends "recipes/base.html" %}
+
+{% block title %}Add recipe{% endblock %}
+
+{% block body %}
+  <p class="nav"><a href="{% url 'recipes:list' %}">&larr; Recipes</a></p>
+  <h1 class="page-title">Add recipe</h1>
+
   {% if error %}
   <p class="error">{{ error }}</p>
   {% endif %}
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save recipe</button>
-  </form>
-</body>
-</html>
+
+  <div class="form-card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Save recipe</button>
+    </form>
+  </div>
+{% endblock %}

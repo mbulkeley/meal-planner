@@ -1,0 +1,424 @@
+/* Recipe box — De Stijl-inspired: kraft paper, thick black rules, four
+   accent blocks used only as category tabs. Type has three deliberate
+   roles: Futura (structure/titles), Iowan Old Style (prose), SF Mono
+   (measurements) — all native to iPad/Mac, the only two devices this
+   LAN-only app renders on, so no webfont fetch is needed. */
+
+:root {
+  --paper: #ede6d3;
+  --paper-raised: #f5f0e4;
+  --ink: #201c16;
+  --ink-soft: #5a5344;
+  --rule: #201c16;
+  --red: #b23a2e;
+  --blue: #2b4f8c;
+  --gold: #c68a1e;
+  --green: #3e6b52;
+  --radius: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1b1811;
+    --paper-raised: #262119;
+    --ink: #ede6d3;
+    --ink-soft: #a89f8c;
+    --rule: #ede6d3;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Iowan Old Style", Charter, Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  margin: 0;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+.wrap {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+a {
+  color: var(--ink);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* Structural / display type */
+h1,
+h2,
+.display,
+.eyebrow,
+.mono {
+  font-family: Futura, "Century Gothic", "Avenir Next", Avenir, system-ui, sans-serif;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.mono {
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* Top nav */
+.nav {
+  margin: 0 0 1.5rem;
+}
+
+.nav a {
+  font-family: Futura, "Century Gothic", "Avenir Next", Avenir, system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 0.1rem;
+}
+
+/* Page header */
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 4px solid var(--rule);
+}
+
+/* Category tab — the signature element. A file-tab peeking above a card,
+   color hashed from the recipe's own category text. */
+.tab {
+  display: inline-block;
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  transform: rotate(-2deg);
+  border-radius: var(--radius);
+}
+
+.tab-red {
+  background: var(--red);
+  color: var(--paper-raised);
+}
+
+.tab-blue {
+  background: var(--blue);
+  color: var(--paper-raised);
+}
+
+.tab-green {
+  background: var(--green);
+  color: var(--paper-raised);
+}
+
+.tab-gold {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* Recipe list — a box of cards */
+.empty-box {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  border: 2px dashed var(--ink-soft);
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+}
+
+.empty-box a {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.75rem 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  position: relative;
+  margin-top: 0.9rem;
+}
+
+.card .tab {
+  position: absolute;
+  top: -0.9rem;
+  left: 1rem;
+}
+
+.card a.card-body {
+  display: block;
+  height: 100%;
+  background: var(--paper-raised);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.25rem 1.25rem;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card a.card-body:hover,
+  .card a.card-body:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 4px 6px 0 var(--rule);
+  }
+}
+
+.card h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  line-height: 1.3;
+}
+
+.card .meta {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+/* Recipe detail */
+.detail-header {
+  margin-bottom: 1.5rem;
+}
+
+.detail-header .tab {
+  margin-bottom: 0.75rem;
+}
+
+.detail-header h1 {
+  font-size: 2rem;
+  line-height: 1.15;
+  margin: 0 0 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 4px solid var(--rule);
+}
+
+.recipe-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.4rem;
+  background: var(--paper-raised);
+  margin: 0 0 1.25rem;
+}
+
+.description {
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0 0 1.5rem;
+}
+
+/* Readout strip — yield / prep / cook / total, in the measurement voice */
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  background: var(--paper-raised);
+  border-top: 2px solid var(--rule);
+  border-bottom: 2px solid var(--rule);
+  padding: 0.9rem 0.25rem;
+  margin: 0 0 1.75rem;
+}
+
+.readout .stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.readout .stat .mono {
+  font-size: 0.95rem;
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 2rem 0 0.75rem;
+}
+
+.ingredients {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+
+.ingredients li {
+  position: relative;
+  padding-left: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.ingredients li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.3rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.directions {
+  margin: 0 0 1.5rem;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.directions li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.directions li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: -0.1rem;
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--gold);
+}
+
+.actions {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--rule);
+  display: flex;
+  gap: 1.5rem;
+}
+
+.actions a {
+  font-family: Futura, "Century Gothic", "Avenir Next", Avenir, system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 2px solid currentColor;
+  padding-bottom: 0.1rem;
+}
+
+.actions a.danger {
+  color: var(--red);
+}
+
+/* Forms */
+.form-card {
+  background: var(--paper-raised);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+}
+
+.form-card p {
+  margin: 0 0 1.1rem;
+}
+
+.form-card label {
+  display: block;
+  font-family: Futura, "Century Gothic", "Avenir Next", Avenir, system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.35rem;
+}
+
+.form-card input[type="text"],
+.form-card input[type="url"],
+.form-card input[type="file"],
+.form-card textarea {
+  width: 100%;
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.65rem;
+}
+
+.form-card textarea {
+  min-height: 16rem;
+  line-height: 1.5;
+}
+
+button,
+.btn {
+  font-family: Futura, "Century Gothic", "Avenir Next", Avenir, system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  background: var(--gold);
+  color: var(--ink);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.65rem 1.4rem;
+  cursor: pointer;
+}
+
+button.danger,
+.btn.danger {
+  background: var(--red);
+  color: var(--paper-raised);
+}
+
+.error {
+  color: var(--red);
+  font-weight: 600;
+  border-left: 4px solid var(--red);
+  padding-left: 0.85rem;
+  margin: 0 0 1.25rem;
+}
+
+.hint {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  margin: 1rem 0 0;
+}

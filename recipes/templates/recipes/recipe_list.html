@@ -1,22 +1,28 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="{% static 'recipes/favicon.svg' %}">
-  <title>Recipes</title>
-  <style>
-    body { font-family: -apple-system, system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
-  </style>
-</head>
-<body>
-  <h1>Recipes</h1>
-  <p><a href="{% url 'recipes:new' %}">+ Add recipe</a></p>
-  <ul>
+{% extends "recipes/base.html" %}
+{% load recipe_extras %}
+
+{% block title %}Recipes{% endblock %}
+
+{% block body %}
+  <h1 class="page-title">Recipes</h1>
+
+  {% if recipes %}
+  <ul class="card-grid">
     {% for recipe in recipes %}
-    <li><a href="{% url 'recipes:detail' recipe.pk %}">{{ recipe.name }}</a></li>
+    <li class="card">
+      <span class="tab {{ recipe.recipe_category|tab_class }}">{{ recipe.recipe_category|default:"Recipe" }}</span>
+      <a class="card-body" href="{% url 'recipes:detail' recipe.pk %}">
+        <h2>{{ recipe.name }}</h2>
+        {% if recipe.recipe_yield %}<p class="meta mono">{{ recipe.recipe_yield }}</p>{% endif %}
+      </a>
+    </li>
     {% endfor %}
   </ul>
-</body>
-</html>
+  <p class="hint"><a href="{% url 'recipes:new' %}">+ Add recipe</a></p>
+  {% else %}
+  <div class="empty-box">
+    <p>Nothing in the box yet.</p>
+    <p><a href="{% url 'recipes:new' %}">Add your first recipe →</a></p>
+  </div>
+  {% endif %}
+{% endblock %}

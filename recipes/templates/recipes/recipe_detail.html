@@ -1,51 +1,65 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="{% static 'recipes/favicon.svg' %}">
-  <title>{{ recipe.name }}</title>
+{% extends "recipes/base.html" %}
+{% load recipe_extras %}
+
+{% block title %}{{ recipe.name }}{% endblock %}
+
+{% block extra_head %}
   <script type="application/ld+json">
   {{ recipe_json_ld|safe }}
   </script>
-  <style>
-    body { font-family: -apple-system, system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
-    h1 { margin-bottom: 0.2rem; }
-    h2 { margin-top: 1.5rem; }
-  </style>
-</head>
-<body>
-  <p><a href="{% url 'recipes:list' %}">&larr; Recipes</a></p>
+{% endblock %}
+
+{% block body %}
+  <p class="nav"><a href="{% url 'recipes:list' %}">&larr; Recipes</a></p>
+
   <article itemscope itemtype="https://schema.org/Recipe">
-    <h1 itemprop="name">{{ recipe.name }}</h1>
+    <header class="detail-header">
+      <span class="tab {{ recipe.recipe_category|tab_class }}">{{ recipe.recipe_category|default:"Recipe" }}</span>
+      <h1 itemprop="name">{{ recipe.name }}</h1>
+    </header>
+
     {% if recipe.image %}
-    <img itemprop="image" src="{{ recipe.image.url }}" alt="{{ recipe.name }}" style="max-width: 100%;">
+    <img class="recipe-photo" itemprop="image" src="{{ recipe.image.url }}" alt="{{ recipe.name }}">
     {% endif %}
-    <p itemprop="description">{{ recipe.description }}</p>
-    <p>Yield: <span itemprop="recipeYield">{{ recipe.recipe_yield }}</span></p>
-    <p>
-      Prep: <meta itemprop="prepTime" content="{{ recipe.prep_time }}">{{ prep_time_display }} &middot;
-      Cook: <meta itemprop="cookTime" content="{{ recipe.cook_time }}">{{ cook_time_display }}
-    </p>
+
+    <p class="description" itemprop="description">{{ recipe.description }}</p>
+
+    <div class="readout">
+      <div class="stat">
+        <span class="eyebrow">Yield</span>
+        <span class="mono" itemprop="recipeYield">{{ recipe.recipe_yield }}</span>
+      </div>
+      <div class="stat">
+        <span class="eyebrow">Prep</span>
+        <span class="mono"><meta itemprop="prepTime" content="{{ recipe.prep_time }}">{{ prep_time_display }}</span>
+      </div>
+      <div class="stat">
+        <span class="eyebrow">Cook</span>
+        <span class="mono"><meta itemprop="cookTime" content="{{ recipe.cook_time }}">{{ cook_time_display }}</span>
+      </div>
+      <div class="stat">
+        <span class="eyebrow">Total</span>
+        <span class="mono"><meta itemprop="totalTime" content="{{ recipe.total_time }}">{{ total_time_display }}</span>
+      </div>
+    </div>
 
     <h2>Ingredients</h2>
-    <ul>
+    <ul class="ingredients">
       {% for line in ingredient_lines %}
       <li itemprop="recipeIngredient">{{ line }}</li>
       {% endfor %}
     </ul>
 
     <h2>Directions</h2>
-    <ol>
+    <ol class="directions">
       {% for line in instruction_lines %}
       <li itemprop="recipeInstructions">{{ line }}</li>
       {% endfor %}
     </ol>
   </article>
-  <p>
-    <a href="{% url 'recipes:edit' recipe.pk %}">Edit</a> &middot;
-    <a href="{% url 'recipes:delete' recipe.pk %}">Delete</a>
+
+  <p class="actions">
+    <a href="{% url 'recipes:edit' recipe.pk %}">Edit</a>
+    <a class="danger" href="{% url 'recipes:delete' recipe.pk %}">Delete</a>
   </p>
-</body>
-</html>
+{% endblock %}
