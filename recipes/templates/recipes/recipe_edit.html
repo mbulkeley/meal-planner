@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="{% static 'recipes/favicon.svg' %}">
+  <title>Edit {{ recipe.name }}</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    textarea { width: 100%; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Edit {{ recipe.name }}</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save changes</button>
+  </form>
+  <p><a href="{% url 'recipes:detail' recipe.pk %}">Cancel</a></p>
+</body>
+</html>

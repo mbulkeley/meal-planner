@@ -8,7 +8,7 @@ from urllib.parse import urljoin, urlparse
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import RecipePasteForm
+from .forms import RecipeForm, RecipePasteForm
 from .models import Recipe
 from .parsing import parse_recipe_text
 
@@ -139,3 +139,23 @@ def recipe_detail(request, pk):
         "cook_time_display": _human_duration(recipe.cook_time),
     }
     return render(request, "recipes/recipe_detail.html", context)
+
+
+def recipe_edit(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    if request.method == "POST":
+        form = RecipeForm(request.POST, request.FILES, instance=recipe)
+        if form.is_valid():
+            form.save()
+            return redirect("recipes:detail", pk=recipe.pk)
+    else:
+        form = RecipeForm(instance=recipe)
+    return render(request, "recipes/recipe_edit.html", {"form": form, "recipe": recipe})
+
+
+def recipe_delete(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    if request.method == "POST":
+        recipe.delete()
+        return redirect("recipes:list")
+    return render(request, "recipes/recipe_delete.html", {"recipe": recipe})

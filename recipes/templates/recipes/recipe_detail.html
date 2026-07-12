@@ -42,5 +42,9 @@
       {% endfor %}
     </ol>
   </article>
+  <p>
+    <a href="{% url 'recipes:edit' recipe.pk %}">Edit</a> &middot;
+    <a href="{% url 'recipes:delete' recipe.pk %}">Delete</a>
+  </p>
 </body>
 </html>
