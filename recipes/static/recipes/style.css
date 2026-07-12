@@ -177,6 +177,29 @@ h2,
   left: 1rem;
 }
 
+.card .favorite-toggle {
+  position: absolute;
+  top: -0.9rem;
+  right: 0.5rem;
+  z-index: 1;
+}
+
+.star-btn {
+  font-family: Futura, "Century Gothic", "Avenir Next", Avenir, system-ui, sans-serif;
+  font-size: 1.35rem;
+  line-height: 1;
+  background: var(--paper-raised);
+  color: var(--ink-soft);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.25rem 0.45rem;
+  cursor: pointer;
+}
+
+.star-btn.is-active {
+  color: var(--gold);
+}
+
 .card a.card-body {
   display: block;
   height: 100%;
@@ -214,8 +237,15 @@ h2,
   margin-bottom: 1.5rem;
 }
 
-.detail-header .tab {
+.detail-header .header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   margin-bottom: 0.75rem;
+}
+
+.detail-header .header-row .tab {
+  margin-bottom: 0;
 }
 
 .detail-header h1 {

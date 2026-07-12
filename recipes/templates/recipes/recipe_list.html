@@ -11,6 +11,11 @@
     {% for recipe in recipes %}
     <li class="card">
       <span class="tab {{ recipe.recipe_category|tab_class }}">{{ recipe.recipe_category|default:"Recipe" }}</span>
+      <form class="favorite-toggle" method="post" action="{% url 'recipes:toggle_favorite' recipe.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="return_to" value="list">
+        <button type="submit" class="star-btn{% if recipe.is_favorite %} is-active{% endif %}" aria-label="{% if recipe.is_favorite %}Remove from favorites{% else %}Add to favorites{% endif %}">{% if recipe.is_favorite %}★{% else %}☆{% endif %}</button>
+      </form>
       <a class="card-body" href="{% url 'recipes:detail' recipe.pk %}">
         <h2>{{ recipe.name }}</h2>
         {% if recipe.recipe_yield %}<p class="meta mono">{{ recipe.recipe_yield }}</p>{% endif %}

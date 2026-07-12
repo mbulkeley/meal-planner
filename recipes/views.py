@@ -74,7 +74,7 @@ def _fetch_image(url):
 
 
 def recipe_list(request):
-    recipes = Recipe.objects.all()
+    recipes = Recipe.objects.order_by("-is_favorite", "name")
     return render(request, "recipes/recipe_list.html", {"recipes": recipes})
 
 
@@ -160,3 +160,13 @@ def recipe_delete(request, pk):
         recipe.delete()
         return redirect("recipes:list")
     return render(request, "recipes/recipe_delete.html", {"recipe": recipe})
+
+
+def recipe_toggle_favorite(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    if request.method == "POST":
+        recipe.is_favorite = not recipe.is_favorite
+        recipe.save(update_fields=["is_favorite"])
+        if request.POST.get("return_to") == "list":
+            return redirect("recipes:list")
+    return redirect("recipes:detail", pk=recipe.pk)

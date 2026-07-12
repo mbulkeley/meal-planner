@@ -27,5 +27,7 @@ class Recipe(models.Model):
 
     image = models.ImageField(upload_to="recipes/", blank=True)
 
+    is_favorite = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name

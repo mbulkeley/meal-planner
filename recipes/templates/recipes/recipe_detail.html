@@ -14,7 +14,14 @@
 
   <article itemscope itemtype="https://schema.org/Recipe">
     <header class="detail-header">
-      <span class="tab {{ recipe.recipe_category|tab_class }}">{{ recipe.recipe_category|default:"Recipe" }}</span>
+      <div class="header-row">
+        <span class="tab {{ recipe.recipe_category|tab_class }}">{{ recipe.recipe_category|default:"Recipe" }}</span>
+        <form class="favorite-toggle" method="post" action="{% url 'recipes:toggle_favorite' recipe.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="return_to" value="detail">
+          <button type="submit" class="star-btn{% if recipe.is_favorite %} is-active{% endif %}" aria-label="{% if recipe.is_favorite %}Remove from favorites{% else %}Add to favorites{% endif %}">{% if recipe.is_favorite %}★{% else %}☆{% endif %}</button>
+        </form>
+      </div>
       <h1 itemprop="name">{{ recipe.name }}</h1>
     </header>
 
