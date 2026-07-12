@@ -19,6 +19,23 @@ def _lines(text):
     return [line.strip() for line in text.splitlines() if line.strip()]
 
 
+def _human_duration(duration):
+    """Render an ISO 8601 duration ("PT1H30M") as human text ("1 hr 30 min")
+    for display. The itemprop="prepTime" content= attribute keeps the raw
+    ISO 8601 value — this is only for the text a person actually reads.
+    """
+    match = re.match(r"PT(?:(\d+)H)?(?:(\d+)M)?$", duration)
+    if not match:
+        return duration  # unrecognized format — show as-is rather than hide it
+    hours, minutes = match.groups()
+    parts = []
+    if hours:
+        parts.append(f"{hours} hr")
+    if minutes:
+        parts.append(f"{minutes} min")
+    return " ".join(parts) if parts else duration
+
+
 def _fetch_url(url):
     request = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
     with urllib.request.urlopen(request, timeout=10) as response:
@@ -118,5 +135,7 @@ def recipe_detail(request, pk):
         "recipe_json_ld": json.dumps(recipe_json_ld),
         "ingredient_lines": ingredient_lines,
         "instruction_lines": instruction_lines,
+        "prep_time_display": _human_duration(recipe.prep_time),
+        "cook_time_display": _human_duration(recipe.cook_time),
     }
     return render(request, "recipes/recipe_detail.html", context)

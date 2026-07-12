@@ -24,8 +24,8 @@
     <p itemprop="description">{{ recipe.description }}</p>
     <p>Yield: <span itemprop="recipeYield">{{ recipe.recipe_yield }}</span></p>
     <p>
-      Prep: <meta itemprop="prepTime" content="{{ recipe.prep_time }}">{{ recipe.prep_time }} &middot;
-      Cook: <meta itemprop="cookTime" content="{{ recipe.cook_time }}">{{ recipe.cook_time }}
+      Prep: <meta itemprop="prepTime" content="{{ recipe.prep_time }}">{{ prep_time_display }} &middot;
+      Cook: <meta itemprop="cookTime" content="{{ recipe.cook_time }}">{{ cook_time_display }}
     </p>
 
     <h2>Ingredients</h2>
