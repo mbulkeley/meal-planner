@@ -97,7 +97,7 @@ def recipe_new(request):
                     fetched = _fetch_image(image_url)
                     if fetched:
                         filename, data = fetched
-                        recipe.image.save(filename, ContentFile(data), save=False)
+                        recipe.image = ContentFile(data, name=filename)
                 recipe.save()
                 return redirect("recipes:detail", pk=recipe.pk)
     else:

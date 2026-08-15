@@ -1,7 +1,25 @@
 from datetime import date
+from io import BytesIO
 
+from django.core.files.base import ContentFile
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.text import slugify
+from PIL import Image, ImageOps
+
+
+def recipe_image_upload_path(instance, filename):
+    """upload_to callable for Recipe.image — controls where/what an uploaded
+    image is named. Called with the Recipe instance, so instance.name is
+    available even for a brand-new (unsaved, no pk yet) recipe.
+
+    Every recipe image is normalized to JPEG in Recipe._process_image, so the
+    extension here should always be ".jpg" regardless of what was
+    uploaded/fetched. If two recipes slugify to the same name, Django's
+    storage backend appends a random suffix automatically — no need to
+    handle that collision case here.
+    """
+    return f"recipes/{slugify(instance.name)}.jpg"
 
 
 class Recipe(models.Model):
@@ -28,9 +46,35 @@ class Recipe(models.Model):
     ingredients = models.TextField(blank=True)
     instructions = models.TextField(blank=True)
 
-    image = models.ImageField(upload_to="recipes/", blank=True)
+    image = models.ImageField(upload_to=recipe_image_upload_path, blank=True)
 
     is_favorite = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            if self.pk:
+                old = Recipe.objects.filter(pk=self.pk).first()
+                image_changed = not old or old.image.name != self.image.name
+            else:
+                image_changed = True
+            if image_changed:
+                self._process_image()
+        super().save(*args, **kwargs)
+
+    def _process_image(self):
+        """Resize/reorient/convert self.image in place using Pillow, then
+        point self.image at the processed bytes. save=False here just
+        updates the field in memory — it does not recurse back into
+        Recipe.save().
+        """
+        image = Image.open(self.image)
+        image = ImageOps.exif_transpose(image)  # bake in EXIF rotation as real pixels
+        image = image.convert("RGB")  # JPEG has no alpha channel; drops PNG transparency etc.
+        image.thumbnail((1200, 1200))  # shrinks to fit, preserves aspect ratio, never enlarges
+
+        buffer = BytesIO()
+        image.save(buffer, format="JPEG", quality=85)
+        self.image.save(f"{slugify(self.name)}.jpg", ContentFile(buffer.getvalue()), save=False)
 
     def __str__(self):
         return self.name
