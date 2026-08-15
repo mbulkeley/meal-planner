@@ -1,7 +1,7 @@
 # Meal Planner
 
-![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![Django](https://img.shields.io/badge/django-4.2-0C4B33)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Django](https://img.shields.io/badge/django-5.2-0C4B33)
 ![License: MIT](https://img.shields.io/badge/license-MIT-yellow)
 ![Self-hosted](https://img.shields.io/badge/self--hosted-Raspberry%20Pi-c51a4a)
 
@@ -48,7 +48,7 @@ placeholder dev key is used, which is fine for local use.
 
 ## Deploying
 
-Runs anywhere Python 3.9+ and Django 4.2 do. The reference deployment is a
+Runs anywhere Python 3.10+ and Django 5.2 do. The reference deployment is a
 Raspberry Pi: `gunicorn` behind a `systemd` service, `DJANGO_SECRET_KEY` set
 via an `EnvironmentFile`, discovered on the LAN via mDNS/Bonjour (no router
 configuration needed) — see `config/settings.py` for the relevant
