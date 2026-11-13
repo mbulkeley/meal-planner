@@ -117,10 +117,11 @@ curl -sI -H 'Host: recipes.mauriecloud.com' -H 'X-Forwarded-Proto: https' \
 ```bash
 sudo apt install -y nginx acl
 
-# Debian 12+/Trixie home dirs are 0700, so nginx (www-data) can't reach media/.
-# Grant traverse-only (no listing) on the two parent dirs:
-sudo setfacl -m u:www-data:x /home/pi /home/pi/Projects
+# nginx (www-data) must be able to traverse every directory down to media/.
 namei -l /home/pi/Projects/meal-planner/media
+# Only if that shows /home/pi (or Projects) as drwx------ (0700, the default
+# for new users on Debian 12+/Trixie), grant traverse-only (no listing):
+sudo setfacl -m u:www-data:x /home/pi /home/pi/Projects
 
 # Older uploads may predate FILE_UPLOAD_PERMISSIONS — make sure they're readable
 find media staticfiles -type d -exec chmod 755 {} + ; find media staticfiles -type f -exec chmod 644 {} +
@@ -129,6 +130,10 @@ sudo -u www-data test -r staticfiles/recipes/style.css && echo "nginx can read s
 # Distro default site listens on :80 — remove it unless something relies on it
 ls -l /etc/nginx/sites-enabled/
 sudo rm /etc/nginx/sites-enabled/default
+
+# 32-bit armhf userland: nginx's default server_names_hash_bucket_size (32) is
+# too small for recipes.mauriecloud.com and `nginx -t` fails without this.
+sudo cp deploy/nginx-server-names-hash.conf /etc/nginx/conf.d/server-names-hash.conf
 
 sudo cp deploy/nginx-meal-planner.conf /etc/nginx/sites-available/meal-planner
 sudo ln -s /etc/nginx/sites-available/meal-planner /etc/nginx/sites-enabled/
