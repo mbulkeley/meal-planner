@@ -15,6 +15,12 @@ After=network.target
 Type=simple
 User=pi
 Group=pi
+
+# gunicorn 27 opens a control socket by default at a per-user path, so every
+# app running as pi shares it and the last one started takes it over. Give
+# each app its own: systemd creates /run/meal-planner/ (owned by pi) on start and
+# removes it on stop, so it also exists after a reboot with nobody logged in.
+RuntimeDirectory=meal-planner
 WorkingDirectory=/home/pi/Projects/meal-planner
 EnvironmentFile=/home/pi/Projects/meal-planner/.env
 
@@ -31,7 +37,8 @@ ExecStart=/home/pi/Projects/meal-planner/venv/bin/gunicorn config.wsgi:applicati
     --workers 2 \
     --timeout 60 \
     --access-logfile - \
-    --error-logfile -
+    --error-logfile - \
+    --control-socket /run/meal-planner/gunicorn.ctl
 
 Restart=on-failure
 RestartSec=5
