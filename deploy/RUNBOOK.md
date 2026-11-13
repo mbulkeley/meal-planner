@@ -96,7 +96,7 @@ Then Zero Trust dashboard → **Access → Applications → Add an application �
 | Domain | `recipes.mauriecloud.com` (path empty = whole site) |
 | Session duration | 1 month |
 | Identity provider | One-time PIN |
-| Policy | Allow → Include → Emails → Michael + Laurie |
+| Policy | Allow → Include → Emails → your household’s email addresses |
 
 ## 5. New gunicorn service
 
@@ -180,7 +180,7 @@ Hostname → Add → `recipes` / `mauriecloud.com` → HTTP → `localhost:8090`
 - [ ] Add a recipe by paste, with an image URL → saves, photo appears
 - [ ] Log a cook, star a favorite → both persist (CSRF works)
 - [ ] `/admin/` login works
-- [ ] Laurie's iPhone: log in once, add to home screen
+- [ ] Each phone: log in once, add to home screen
 - [ ] **Paprika import**: open a recipe page in Paprika's in-app browser, log
       in through Access, import. If Paprika fetches server-side instead and
       gets the login page, options: a Cloudflare Access *service token* isn't
@@ -215,6 +215,6 @@ off the internet; Access app can stay.
   site is behind Access; restrict it (block private/loopback addresses)
   before any part of the site goes public.
 - Backups: add `db.sqlite3` (via `sqlite3 .backup`) and `media/` to the Voodoo backup set.
-- Ceramics will reuse this exact layout: its own gunicorn on 127.0.0.1:8002,
+- A second app can reuse this exact layout: its own gunicorn on 127.0.0.1:8002,
   a second `server` block on 127.0.0.1:8090 with `server_name
-  ceramics.mauriecloud.com`, and one more tunnel hostname.
+  <app>.example.com`, and one more tunnel hostname.
