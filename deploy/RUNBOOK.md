@@ -84,7 +84,11 @@ venv/bin/python manage.py check --deploy
 
 ## 4. Cloudflare Access (dashboard) — do this before step 7
 
-Zero Trust dashboard → **Access → Applications → Add an application → Self-hosted**:
+First, if it isn't there yet: Zero Trust dashboard → **Integrations →
+Identity providers → Add new → One-time PIN**. Without it, the application's
+login page only offers "Cloudflare", and One-time PIN can't be selected below.
+
+Then Zero Trust dashboard → **Access → Applications → Add an application → Self-hosted**:
 
 | Setting | Value |
 |---|---|
