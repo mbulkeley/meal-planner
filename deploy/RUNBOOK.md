@@ -157,7 +157,9 @@ done
 ```bash
 sudo cp /etc/cloudflared/config.yml ~/Backup/meal-planner/cloudflared-config.yml.bak
 sudo nano /etc/cloudflared/config.yml
-sudo cloudflared tunnel ingress validate --config /etc/cloudflared/config.yml
+# --config goes before `ingress`; `ingress validate --config …` is rejected
+sudo cloudflared tunnel --config /etc/cloudflared/config.yml ingress validate
+cloudflared tunnel --config /etc/cloudflared/config.yml ingress rule https://recipes.mauriecloud.com/recipes/
 sudo cloudflared tunnel route dns <tunnel-name> recipes.mauriecloud.com
 sudo systemctl restart cloudflared
 ```
