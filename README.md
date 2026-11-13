@@ -48,11 +48,39 @@ placeholder dev key is used, which is fine for local use.
 
 ## Deploying
 
-Runs anywhere Python 3.10+ and Django 5.2 do. The reference deployment is a
-Raspberry Pi: `gunicorn` behind a `systemd` service, `DJANGO_SECRET_KEY` set
-via an `EnvironmentFile`, discovered on the LAN via mDNS/Bonjour (no router
-configuration needed) — see `config/settings.py` for the relevant
-`ALLOWED_HOSTS` entries to adjust for your own network.
+Runs anywhere Python 3.10+ and Django 5.2 do. Production settings come from
+environment variables (see `deploy/meal-planner.env.example`); with none set,
+it runs in development mode.
+
+The reference deployment is a Raspberry Pi:
+
+```
+Cloudflare (HTTPS + Access) → cloudflared tunnel → nginx (static/media) → gunicorn → Django
+```
+
+Everything needed is in [`deploy/`](deploy/):
+
+| File | What it is |
+|---|---|
+| `RUNBOOK.md` | Step-by-step migration and deploy guide |
+| `meal-planner.service` | systemd unit for gunicorn (localhost only; runs migrate + collectstatic on start) |
+| `nginx-meal-planner.conf` | nginx site: serves `/static/` and `/media/`, proxies the rest |
+| `meal-planner.env.example` | Environment file template |
+| `cloudflared-ingress.example.yml` | Tunnel ingress entry |
+
+The app has no login on its own pages — put it behind an authenticating
+proxy (e.g. Cloudflare Access) or keep it on a trusted LAN.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DJANGO_SECRET_KEY` | dev placeholder | Required when `DJANGO_DEBUG=false` |
+| `DJANGO_DEBUG` | `true` | Set `false` in production |
+| `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated hostnames |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | — | e.g. `https://recipes.example.com` |
+| `DJANGO_BEHIND_PROXY` | `false` | Trust `X-Forwarded-Proto` from the proxy |
+| `DJANGO_SECURE_COOKIES` | `not DEBUG` | HTTPS-only cookies |
+| `DJANGO_TIME_ZONE` | `Europe/Amsterdam` | Display time zone |
+| `DJANGO_LOG_LEVEL` | `WARNING` | Django log level (to stderr / journald) |
 
 ## License
 

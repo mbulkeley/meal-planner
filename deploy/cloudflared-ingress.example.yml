@@ -1,0 +1,19 @@
+# Snippet for a LOCALLY managed tunnel (/etc/cloudflared/config.yml).
+# Add the recipes entry ABOVE the final catch-all rule — rules match top-down.
+# Keep your existing tunnel:, credentials-file: and nextcloud entry as they are.
+#
+# Then:
+#   sudo cloudflared tunnel ingress validate --config /etc/cloudflared/config.yml
+#   sudo cloudflared tunnel route dns <tunnel-name> recipes.mauriecloud.com
+#   sudo systemctl restart cloudflared
+#
+# REMOTELY managed tunnel (dashboard)? Skip this file: Zero Trust → Networks →
+# Tunnels → <tunnel> → Public Hostname → Add: recipes.mauriecloud.com →
+# HTTP → localhost:8090. The DNS record is created for you.
+
+ingress:
+  # - hostname: nextcloud.mauriecloud.com      ← existing entry, unchanged
+  #   service: ...
+  - hostname: recipes.mauriecloud.com
+    service: http://localhost:8090
+  - service: http_status:404                  # catch-all, must stay last

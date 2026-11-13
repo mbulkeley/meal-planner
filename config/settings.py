@@ -13,6 +13,19 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+
+def env_bool(name, default=False):
+    """Read a boolean env var ("1", "true", "yes", "on" → True)."""
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in ("1", "true", "yes", "on")
+
+
+def env_list(name, default=""):
+    """Read a comma-separated env var into a list, dropping blanks."""
+    return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,17 +43,46 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Defaults to True so `runserver` keeps working out of the box for anyone who
+# clones the repo. Real deployments set DJANGO_DEBUG=false in their
+# EnvironmentFile (see deploy/meal-planner.env.example).
+DEBUG = env_bool("DJANGO_DEBUG", default=True)
 
-# This app is only ever reached over a home LAN. The real deployment host(s)
-# — e.g. the machine's mDNS/Bonjour name, or a LAN IP for local testing — are
-# set via DJANGO_ALLOWED_HOSTS (comma-separated) rather than committed here,
-# since a public repo shouldn't bake in details of anyone's home network.
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if host.strip()
-]
+if not DEBUG and SECRET_KEY.startswith("django-insecure-"):
+    from django.core.exceptions import ImproperlyConfigured
+
+    raise ImproperlyConfigured(
+        "DJANGO_DEBUG is off but DJANGO_SECRET_KEY isn't set — refusing to run "
+        "a production deployment with the placeholder key."
+    )
+
+# Deployment host(s) — e.g. a public hostname behind a reverse proxy, the
+# machine's mDNS/Bonjour name, or a LAN IP — are set via DJANGO_ALLOWED_HOSTS
+# (comma-separated) rather than committed here, since a public repo shouldn't
+# bake in details of anyone's network.
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+
+# Full origins (scheme + host) allowed to POST forms when served over HTTPS
+# from a hostname, e.g. "https://recipes.example.com". Needed because Django
+# checks the Origin header on every POST.
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+
+# --- Running behind a reverse proxy (nginx ← Cloudflare Tunnel) -------------
+# nginx sets X-Forwarded-Proto. Only trust it when explicitly told to, since
+# without a proxy in front a client could spoof it.
+if env_bool("DJANGO_BEHIND_PROXY"):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Cookies only over HTTPS. Defaults on whenever DEBUG is off; set
+# DJANGO_SECURE_COOKIES=false if a deployment is still reached over plain
+# http (e.g. a LAN-only mDNS name) — otherwise logins silently fail there.
+SECURE_COOKIES = env_bool("DJANGO_SECURE_COOKIES", default=not DEBUG)
+SESSION_COOKIE_SECURE = SECURE_COOKIES
+CSRF_COOKIE_SECURE = SECURE_COOKIES
+
+# HTTPS redirect and HSTS are handled at the edge (Cloudflare), not here.
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
 
 
 # Application definition
@@ -121,7 +163,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.environ.get("DJANGO_TIME_ZONE", "Europe/Amsterdam")
 
 USE_I18N = True
 
@@ -133,9 +175,34 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Where `manage.py collectstatic` gathers static files for nginx to serve in
+# production. Unused in development (runserver serves from each app).
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 # Where uploaded recipe images live and the URL prefix they're served from.
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Uploaded files: world-readable so nginx (a different user) can serve them.
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
+
+# Errors go to stderr → gunicorn → systemd journal
+# (`journalctl -u meal-planner`). With DEBUG off there's no yellow error page,
+# so this is where tracebacks end up.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.environ.get("DJANGO_LOG_LEVEL", "WARNING"),
+            "propagate": False,
+        },
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
