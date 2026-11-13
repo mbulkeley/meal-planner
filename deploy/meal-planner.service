@@ -1,0 +1,40 @@
+# systemd unit for meal-planner (gunicorn), reached via nginx ← Cloudflare Tunnel.
+#
+# Install:  sudo cp deploy/meal-planner.service /etc/systemd/system/
+#           sudo systemctl daemon-reload && sudo systemctl enable --now meal-planner
+# Logs:     journalctl -u meal-planner -f
+#
+# Paths assume the repo lives at /home/pi/Projects/meal-planner with its venv
+# at ./venv — adjust if your checkout is elsewhere.
+
+[Unit]
+Description=meal-planner (Django via gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/Projects/meal-planner
+EnvironmentFile=/home/pi/Projects/meal-planner/.env
+
+# Apply migrations and gather static files on every (re)start, so a deploy is
+# just: git pull → pip install -r requirements.txt → systemctl restart.
+ExecStartPre=/home/pi/Projects/meal-planner/venv/bin/python manage.py migrate --noinput
+ExecStartPre=/home/pi/Projects/meal-planner/venv/bin/python manage.py collectstatic --noinput
+
+# Localhost only — nginx is the only thing that should talk to gunicorn.
+# 2 workers: plenty for a household, light on a 2GB Pi.
+# 60s timeout: recipe image fetches can take up to ~20s (two 10s fetches).
+ExecStart=/home/pi/Projects/meal-planner/venv/bin/gunicorn config.wsgi:application \
+    --bind 127.0.0.1:8001 \
+    --workers 2 \
+    --timeout 60 \
+    --access-logfile - \
+    --error-logfile -
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
